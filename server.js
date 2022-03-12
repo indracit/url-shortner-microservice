@@ -31,33 +31,39 @@ app.get('/', function(req, res) {
 // Your first API endpoint
 app.post('/api/shorturl', function(req, res) {
   const {url}=req.body
-  dns.lookup(urlParser.parse(url).hostname,(err,data)=>{
-    if(err){console.log(err)
-    return res.json({ error: 'invalid url' })}
-    console.log(data);
-
-
-    Url.create({url}, function (err, data) {
-      if (err) { console.log(err);}
+    dns.lookup(urlParser.parse(url).hostname,(err,data)=>{
+      
+      if(!data){
+        console.log(data)
+      return res.json({ error: 'invalid url' })}
       console.log(data);
-     
-      res.json({original_url:data.url,
-      short_url:data.id})
+  
+  
+      Url.create({url}, function (err, data) {
+        if (err) { console.log(err);}
+        console.log(data);
+       
+        return res.json({original_url:data.url,
+        short_url:data.id})
+  
+      });
+    })}
+);
 
-    });
-  })
-
-});
-
-app.get('/api/shorturl/:id',(req,res)=>{
-  const {id}=req.params
-  Url.findById(id,(err,data)=>{
+app.get('/api/shorturl/:short',(req,res)=>{
+  const {short}=req.params
+  Url.findById(short,(err,data)=>{
     if(err){
       console.log(err);
+    }
+    if(!data){
+      return res.json({error: "Invalid URL"})
     }
     res.redirect(data.url)
   })
 })
+
+
 
 
 
